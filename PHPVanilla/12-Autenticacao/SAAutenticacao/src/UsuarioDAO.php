@@ -31,7 +31,6 @@ final class UsuarioDAO{
     }
 
     // buscar dados do usuário pelo email
-
     public function buscarPorEmail(string $email): ?array{
         $sql="SELECT * FROM usuarios WHERE email = :email AND ativo = TRUE";
         $stmt= $this->pdo->prepare($sql);
@@ -41,4 +40,22 @@ final class UsuarioDAO{
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
         return $resultado ?: null;
     }
+
+    //buscar um email cadastrado -> verificar se o email já esta cadastrado
+    public function emailExiste(string $email): bool{
+        //busca apenas a coluna do email a partir do email digitado
+        $sql = "SELECT 1 FROM usuarios WHERE email = :email";
+        $stmt = $this->pdo->prepare($sql);
+        //ajusta o email digitado para minusculo e recorta os espaços em branco
+        $stmt->bindValue(":email", strtolower(trim($email)), PDO::PARAM_STR);
+        //executa a busca
+        $stmt->execute();
+        //Se email for encontrado retorna true se não retorna false
+        return (bool)$stmt->fetchColumn(); //(bool) => CAST para garantir que o retrona vai ser uma booleana
+    }
+
+
+    //esta faltando um update 
+
+    // e esta faltando um delete
 }
