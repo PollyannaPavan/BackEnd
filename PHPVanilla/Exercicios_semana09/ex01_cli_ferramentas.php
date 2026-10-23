@@ -1,101 +1,110 @@
+
 <?php
 declare(strict_types=1);
 
-// Conecta ao banco de dados PostgreSQL.
-function conectarBanco(): PDO
-{
-    $config = parse_ini_file(__DIR__ . '../11-CRUD/SACRUD/config/database.ini', true);
+// Importa os arquivos necessários
+require_once __DIR__ . "/src/ConexaoBanco.php";
+require_once __DIR__ . "/src/AlmoxarifadoDAO.php";
 
-    if ($config === false || !isset($config['development'])) {
-        throw new RuntimeException('Configuração do banco não encontrada.');
+// Caminho do arquivo de configuração
+const CONFIG_PATH = __DIR__ . "/config/database.ini";
+
+// Classe para cadastrar e listar ferramentas
+final class ex01_cli_ferramentas
+{
+    // Guarda a conexão com o banco
+    private PDO $pdo;
+
+    // Recebe a conexão
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
     }
 
-    $db = $config['development'];
-    $dsn = "pgsql:host={$db['db_host']};port={$db['db_port']};dbname={$db['db_name']}";
+    // Cadastra uma ferramenta
+    public function cadastrar(array $dados): bool
+    {
+        $sql = "INSERT INTO ferramentas
+                (nome, descricao, categoria, quantidade, preco_unitario)
+                VALUES (:nome, :descricao, :categoria, :quantidade, :preco_unitario)";
 
-    return new PDO($dsn, $db['db_user'], $db['db_password'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-}
+        $stmt = $this->pdo->prepare($sql);
 
-// Cadastra uma peça usando parâmetros nomeados.
-function cadastrarPeca(PDO $pdo): void
-{
-    echo "Código SKU: ";
-    $sku = trim((string) fgets(STDIN));
-    echo "Descrição: ";
-    $descricao = trim((string) fgets(STDIN));
-    echo "Categoria: ";
-    $categoria = trim((string) fgets(STDIN));
-    echo "Quantidade: ";
-    $quantidade = filter_var(trim((string) fgets(STDIN)), FILTER_VALIDATE_INT);
-    echo "Preço unitário: ";
-    $preco = filter_var(trim((string) fgets(STDIN)), FILTER_VALIDATE_FLOAT);
-
-    if ($sku === '' || $descricao === '' || $categoria === '' ||
-        $quantidade === false || $quantidade < 0 ||
-        $preco === false || $preco < 0) {
-        echo "Dados inválidos.\n";
-        return;
+        return $stmt->execute([
+            ":nome" => trim($dados["nome"]),
+            ":descricao" => trim($dados["descricao"]),
+            ":categoria" => trim($dados["categoria"]),
+            ":quantidade" => (int) $dados["quantidade"],
+            ":preco_unitario" => (float) $dados["preco_unitario"]
+        ]);
     }
 
-    $sql = 'INSERT INTO pecas_industriais
-        (codigo_sku, descricao, categoria, quantidade, preco_unitario)
-        VALUES (:sku, :descricao, :categoria, :quantidade, :preco)';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':sku' => $sku,
-        ':descricao' => $descricao,
-        ':categoria' => $categoria,
-        ':quantidade' => $quantidade,
-        ':preco' => $preco
-    ]);
+    // Lista as ferramentas ativas
+    public function buscarAtivo(): array
+    {
+        $sql = "SELECT * FROM ferramentas WHERE ativo = TRUE";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
 
-    echo "Peça cadastrada com sucesso!\n";
-}
-
-// Lista somente as peças que estão ativas.
-function listarPecas(PDO $pdo): void
-{
-    $sql = 'SELECT id, codigo_sku, descricao, categoria, quantidade,
-            preco_unitario FROM pecas_industriais WHERE ativo = TRUE
-            ORDER BY id';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-
-    foreach ($stmt->fetchAll() as $peca) {
-        echo "{$peca['id']} - {$peca['codigo_sku']} - ";
-        echo "{$peca['descricao']} - Quantidade: {$peca['quantidade']}\n";
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
-// Executa o menu do terminal.
-function executarMenu(PDO $pdo): void
-{
-    do {
-        echo "\n1 - Cadastrar peça\n2 - Listar peças ativas\n3 - Sair\n";
-        echo "Escolha: ";
-        $opcao = trim((string) fgets(STDIN));
+// Cria o objeto para usar as funções
+$ferramentas = new ex01_cli_ferramentas($pdo);
 
-        try {
-            if ($opcao === '1') {
-                cadastrarPeca($pdo);
-            } elseif ($opcao === '2') {
-                listarPecas($pdo);
-            } elseif ($opcao !== '3') {
-                echo "Opção inválida.\n";
-            }
-        } catch (PDOException $erro) {
-            echo "Erro ao acessar o banco de dados.\n";
+// Opção inicial do menu
+$opcao = 0;
+
+// Repete o menu até escolher sair
+while ($opcao != 3) {
+    echo "\n===== MENU DE FERRAMENTAS =====\n";
+    echo "1 - Cadastrar ferramenta\n";
+    echo "2 - Listar ferramentas ativas\n";
+    echo "3 - Sair\n";
+
+    $opcao = (int) readline("Escolha uma opção: ");
+
+    // Cadastra uma ferramenta
+    if ($opcao == 1) {
+        $dados = [];
+
+        $dados["nome"] = readline("Nome: ");
+        $dados["descricao"] = readline("Descrição: ");
+        $dados["categoria"] = readline("Categoria: ");
+        $dados["quantidade"] = readline("Quantidade: ");
+        $dados["preco_unitario"] = readline("Preço unitário: ");
+
+        if ($ferramentas->cadastrar($dados)) {
+            echo "Ferramenta cadastrada com sucesso!\n";
+        } else {
+            echo "Erro ao cadastrar ferramenta!\n";
         }
-    } while ($opcao !== '3');
 
-    echo "Programa encerrado.\n";
-}
+    // Lista as ferramentas cadastradas
+    } elseif ($opcao == 2) {
+        $resultado = $ferramentas->buscarAtivo();
 
-try {
-    executarMenu(conectarBanco());
-} catch (Throwable $erro) {
-    echo "Não foi possível conectar ao banco de dados.\n";
+        // Mostra os dados de cada ferramenta
+        foreach ($resultado as $ferramenta) {
+            echo "\nNome: " . $ferramenta["nome"] . "\n";
+            echo "Descrição: " . $ferramenta["descricao"] . "\n";
+            echo "Categoria: " . $ferramenta["categoria"] . "\n";
+            echo "Quantidade: " . $ferramenta["quantidade"] . "\n";
+            echo "Preço: R$ " . $ferramenta["preco_unitario"] . "\n";
+        }
+
+        // Avisa se não houver ferramentas
+        if (count($resultado) == 0) {
+            echo "Nenhuma ferramenta ativa encontrada.\n";
+        }
+
+    // Sai do programa
+    } elseif ($opcao == 3) {
+        echo "Encerrando o programa...\n";
+
+    // Avisa se a opção for inválida
+    } else {
+        echo "Opção inválida! Tente novamente.\n";
+    }
 }

@@ -1,6 +1,5 @@
 # LISTA DE EXERCÍCIOS DE FIXAÇÃO E PRÁTICA 
 
-
 ## Parte A: Exercícios Teóricos de Fixação
 
 ### Definição de CRUD
