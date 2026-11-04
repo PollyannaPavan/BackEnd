@@ -1,58 +1,133 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Meu Primeiro Projeto Laravel - SENAI Asset Manager (Sistema de gestão de ativos Industriais e Maquinários)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Criação da Aplicação
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+abrir o termianr do VSCode na pasta desejada e adicionar o projeto usando o composer
 
 ```bash
-composer require laravel/boost --dev
+php --version #verifica a versão do php instalada
 
-php artisan boost:install
+composer --version #verifica a versãao do composer instalada
+
+#cria o projeto dentro da pasta atual
+composer create-project laravel/laravel nome-do-projeto
+
+#acessa a pasta do projeto
+cd nome-do-projeto
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## 2. Configuração de Arquivo de Blindagem `.env`
 
-## Contributing
+- Abrir o arquivo e configurar os paraâmetros
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Configurar as informações das variáveis de ambiente para o projeto
 
-## Code of Conduct
+- Inserir a chave de criptrografia caso nã tenha
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`php artisan key:generate`
 
-## Security Vulnerabilities
+## Criação de uma Classe Model 
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Gerar o Model para Representar as máquinas e equipamentos do sistema
 
-## License
+criar uma classe chamada Ativo
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+`php artisan make:model Ativo`
+
+`app/Models/Ativo.php` - arquivo criado
+
+## 3. Criação de um Controller 
+
+Gerar um Controller para gerenciar as máquinas e equipamentos (Ativo)
+
+`php artisan make:controller AtivoController --resource`
+
+`app/Http/Controllers/AtivoController.php` - arquivo criado
+
+## 4. Rotas de Navegação da Aplicação
+
+`routes/web.php`
+
+criação de duas rotas de tipo get
+
+uma de ativos mokados
+uma de status da infra
+
+## 5. Camada de Visualização `Blade`
+
+`resources/views/`
+
+criar a pasta de ativos
+e criar index.blade.php
+
+- blade é a engine de visualização do laravel, que permite criar páginas web dinâmicas com sintaxe simples e direta
+- faz uso do databind => é o processo de vincular dados do backend (controlador ou do modelo) a elementos da interface do usuários (UI)
+- databind no blade é feito com a sintaxe `{{ $variavel }}`
+
+
+
+## Inicialização e Homologação 
+
+Inspecionar 
+
+`php artisan about`
+
+Homolocar 
+`php artisan serve`
+
+## 7. Roteiro de Homologação e Teste
+
+Execute a sequência de 7 testes de validação técnica no laboratório:
+
+1. **Teste 1 — Servidor HTTP Ativo:**  
+   Inicie o servidor com `php artisan serve` e acesse `http://localhost:8000/`.  
+   *Resultado Esperado:* A página corporativa do *SENAI Asset Manager* é renderizada perfeitamente, exibindo os 4 cards de métricas (42 ativos, 37 em operação, 4 em manutenção e 88.5% de eficiência).
+
+2. **Teste 2 — Resposta da Rota de Diagnóstico JSON:**  
+   Acesse a URL `http://localhost:8000/status` (ou clique no botão verde do painel).  
+   *Resultado Esperado:* O navegador exibe a resposta estruturada em JSON semântico:
+   ```json
+   {
+       "plataforma": "SENAI Asset Manager",
+       "ambiente": "local",
+       "versao_php": "8.3.x",
+       "status": "ONLINE",
+       "timestamp": "2026-10-30T16:45:00-03:00"
+   }
+   ```
+
+3. **Teste 3 — Inspeção de Rotas com Artisan:**  
+   No terminal, execute `php artisan route:list`.  
+   *Resultado Esperado:* As rotas `ativos.index` e `ativos.status` aparecem associadas às ações do `AtivoController`.
+
+4. **Teste 4 — Auditoria de Blindagem do Arquivo `.env`:**  
+   Abra o terminal e verifique se o `.env` está protegido pelo Git:
+   ```bash
+   git status --ignored
+   ```
+   *Resultado Esperado:* O arquivo `.env` aparece listado na seção de arquivos ignorados (`Ignored files`). Ele **nunca** deve aparecer como arquivo rastreado (*Untracked/Staged*)!
+
+5. **Teste 5 — Teste de Execução no Terminal Interativo (Tinker):**  
+   Abra o REPL do Laravel:
+   ```bash
+   php artisan tinker
+   ```
+   Digite os seguintes comandos dentro do Tinker:
+   ```php
+   config('app.name');
+   // Retorna: "SENAI Asset Manager"
+   
+   now()->format('d/m/Y H:i:s');
+   // Retorna a data e hora atual no fuso configurado
+   
+   exit;
+   ```
+
+6. **Teste 6 — Auditoria da Chave Criptográfica:**  
+   Experimente apagar temporariamente o valor da `APP_KEY` no `.env` e recarregue a página no navegador.  
+   *Resultado Esperado:* O Laravel bloqueia a execução e exibe a mensagem de segurança alertando sobre a ausência da chave de criptografia.  
+   *Restauração:* Execute `php artisan key:generate` para restabelecer a segurança e recarregue a página.
+
+7. **Teste 7 — Verificação do Painel de Saúde (`php artisan about`):**  
+   Execute `php artisan about` no terminal.  
+   *Resultado Esperado:* Todos os indicadores técnicos devem estar validados em verde.
