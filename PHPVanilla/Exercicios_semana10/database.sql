@@ -1,0 +1,16 @@
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    perfil VARCHAR(20) NOT NULL DEFAULT 'OPERADOR'
+);
+
+CREATE TABLE auditoria_logins (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    ip VARCHAR(45),
+    user_agent TEXT,
+    sucesso BOOLEAN NOT NULL,
+    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
